@@ -1,0 +1,18 @@
+# Configurazione Netlify — sito statico protetto da password
+# (vedi netlify/edge-functions/auth.js).
+
+[build]
+  # Nessun processo di build: sito statico servito dalla root del repository.
+  publish = "."
+  command = ""
+
+# Nessun blocco [[redirects]]: il contenuto è in index.html nella root,
+# quindi Netlify serve già la home su "/".
+
+# Header di sicurezza di base su tutte le risposte.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Label Rose Deep-Dive</title>
+</head>
+<body>
+<title>Label Rose Deep-Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rosso:#FF2619; --rosso-90:#FF746C; --rosso-30:#FFC7C3; --rosso-10:#FFE7E6;
+  --nero:#191919; --bianco:#FFFFFF; --g100:#F4F5F6; --g200:#DBDBDB; --g300:#8A8A8A; --g400:#757575; --ciano:#00AEEF;
+  --bg:#FFFFFF; --bg-alt:#F4F5F6; --text:#191919; --text-soft:#757575; --border:#E3E4E6; --card:#FFFFFF; --shadow:0 1px 2px rgba(25,25,25,.04),0 8px 24px rgba(25,25,25,.06);
+  --pos:#1F9D57; --neg:#FF2619; --warn:#E08A00;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121212; --bg-alt:#191919; --text:#F4F5F6; --text-soft:#A9A9A9; --border:#2c2c2c; --card:#1b1b1b; --g100:#1b1b1b; --g200:#2c2c2c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); --pos:#43C07E;
+}}
+:root[data-theme="dark"]{
+  --bg:#121212; --bg-alt:#191919; --text:#F4F5F6; --text-soft:#A9A9A9; --border:#2c2c2c; --card:#1b1b1b; --g100:#1b1b1b; --g200:#2c2c2c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); --pos:#43C07E;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Figtree','Inter',system-ui,-apple-system,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+h1,h2,h3,h4{letter-spacing:-0.03em;font-weight:700;line-height:1.1;margin:0;}
+h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:6px;}
+h3{font-size:20px;margin-bottom:4px;}
+p{margin:0 0 14px;}
+a{color:inherit;}
+.dot{display:inline-block;width:.42em;height:.42em;border-radius:50%;background:var(--ciano);vertical-align:baseline;margin-left:.08em;}
+.reddot{color:var(--rosso);}
+small,.cap{color:var(--text-soft);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--border);}
+.navin{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;text-decoration:none;}
+.brand-logo{height:23px;width:auto;display:block;color:var(--text);}
+.foot-logo{height:22px;width:auto;color:var(--text);display:block;margin-bottom:12px;}
+.navlinks{display:flex;gap:16px;flex-wrap:wrap;margin-left:auto;font-size:13.5px;font-weight:500;}
+.navlinks a{color:var(--text-soft);text-decoration:none;padding:4px 2px;border-bottom:2px solid transparent;transition:.15s;}
+.navlinks a:hover{color:var(--text);border-color:var(--rosso);}
+@media(max-width:720px){.navlinks{display:none;}}
+
+/* HERO */
+.hero{padding:64px 0 34px;border-bottom:1px solid var(--border);}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:700;color:var(--rosso);margin-bottom:18px;}
+.hero h1{font-size:clamp(34px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02;}
+.hero .sub{font-size:clamp(17px,2.2vw,21px);color:var(--text-soft);max-width:730px;margin-top:16px;}
+.metaline{display:flex;gap:22px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--text-soft);}
+.metaline b{color:var(--text);font-weight:600;}
+
+section{padding:52px 0;border-bottom:1px solid var(--border);}
+.sec-k{text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:700;color:var(--text-soft);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-k .num{color:var(--rosso);}
+
+/* KPI CARDS */
+.kpigrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px;}
+@media(max-width:860px){.kpigrid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);}
+.kpi .lab{font-size:12px;color:var(--text-soft);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .val{font-size:30px;font-weight:800;letter-spacing:-.03em;margin:8px 0 2px;}
+.kpi .chg{font-size:13.5px;font-weight:700;}
+.up{color:var(--pos);} .down{color:var(--neg);} .flat{color:var(--text-soft);}
+.kpi .ctx{font-size:12px;color:var(--text-soft);margin-top:4px;}
+
+/* callouts */
+.callout{background:var(--g100);border-left:4px solid var(--rosso);border-radius:0 14px 14px 0;padding:18px 20px;margin:22px 0;}
+.callout.cyan{border-color:var(--ciano);}
+.callout h4{font-size:15px;margin-bottom:6px;}
+.callout p{margin:0;font-size:14.5px;color:var(--text);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+@media(max-width:820px){.grid2{grid-template-columns:1fr;}}
+
+/* cause cards */
+.cause{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:22px 0;border-top:1px solid var(--border);}
+.cause:first-of-type{border-top:none;}
+.cause .badge{width:44px;height:44px;border-radius:50%;background:var(--rosso);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:18px;letter-spacing:-.03em;}
+.cause h3{font-size:19px;}
+.cause .lead{font-weight:600;color:var(--text);}
+.pill{display:inline-block;background:var(--rosso-10);color:var(--rosso);font-weight:700;font-size:12px;padding:3px 10px;border-radius:999px;margin:2px 6px 2px 0;}
+:root[data-theme="dark"] .pill,:root:not([data-theme="light"]) .pill{background:rgba(255,38,25,.14);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill{background:rgba(255,38,25,.14);}}
+
+/* tables */
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;margin-top:10px;}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px;}
+th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+th:first-child,td:first-child{text-align:left;font-weight:600;}
+thead th{background:var(--rosso);color:#fff;font-weight:600;border-bottom:none;position:sticky;top:0;}
+tbody tr:nth-child(even){background:var(--g100);}
+tbody tr:last-child td{border-bottom:none;}
+td .d{font-weight:700;font-size:12.5px;}
+
+/* month tabs */
+.tabs{display:inline-flex;background:var(--g100);border:1px solid var(--border);border-radius:999px;padding:4px;gap:2px;margin:6px 0 4px;}
+.tabs button{border:none;background:transparent;color:var(--text-soft);font-family:inherit;font-weight:700;font-size:14px;padding:7px 18px;border-radius:999px;cursor:pointer;transition:.15s;letter-spacing:-.01em;}
+.tabs button.active{background:var(--rosso);color:#fff;}
+
+/* charts */
+.chartcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 20px 12px;box-shadow:var(--shadow);}
+.chartcard h4{font-size:14px;margin-bottom:2px;}
+.chartcard .cap{font-size:12px;margin-bottom:12px;display:block;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-soft);margin-top:8px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.barlabel{font-size:11px;fill:var(--text-soft);font-family:inherit;}
+.barval{font-size:12.5px;font-weight:700;fill:var(--text);font-family:inherit;}
+.axis{stroke:var(--border);stroke-width:1;}
+
+/* action plan */
+.act{border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;background:var(--card);box-shadow:var(--shadow);}
+.act .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+.prio{font-weight:800;font-size:12px;color:#fff;background:var(--nero);border-radius:8px;padding:4px 9px;letter-spacing:.02em;}
+.prio.p1{background:var(--rosso);} .prio.p2{background:#C21A10;} .prio.p3{background:var(--nero);}
+.act h3{font-size:17px;}
+.tag{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-soft);border:1px solid var(--border);border-radius:999px;padding:3px 10px;}
+.act ul{margin:6px 0 0;padding-left:18px;}
+.act li{margin-bottom:5px;font-size:14px;}
+.meta-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);font-size:12.5px;}
+.meta-row b{color:var(--text);}
+.owner{display:inline-flex;align-items:center;gap:6px;}
+.chip{background:var(--g100);border-radius:999px;padding:2px 10px;font-weight:600;}
+
+ul.clean{list-style:none;padding:0;margin:0;}
+ul.clean li{padding:12px 0;border-top:1px solid var(--border);display:grid;grid-template-columns:22px 1fr;gap:12px;font-size:14.5px;}
+ul.clean li:first-child{border-top:none;}
+ul.clean .q{color:var(--ciano);font-weight:800;}
+.foot{padding:40px 0 60px;color:var(--text-soft);font-size:12.5px;}
+.foot b{color:var(--text);}
+.tin{font-size:12px;color:var(--text-soft);}
+.hr-lite{height:1px;background:var(--border);border:none;margin:26px 0;}
+.big-num{font-size:clamp(40px,7vw,72px);font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--rosso);}
+</style>
+
+<nav>
+  <div class="navin">
+    <a class="brand" href="#top" aria-label="Moca"><svg class="brand-logo" viewBox="0 0 147 39" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Moca"><ellipse cx="19.2527" cy="19.5" rx="19.2527" ry="19.5" fill="#E52217"/><path fill="currentColor" d="M72.1489 10.6484C74.6903 10.6484 76.7234 11.4343 78.2482 13.006C79.8013 14.5777 80.5778 16.6923 80.5778 19.3499V31.9948H76.6811V20.0357C76.6811 18.2925 76.2151 16.9066 75.2833 15.8779C74.3515 14.8491 73.0949 14.3348 71.5136 14.3348C70.4688 14.3348 69.4381 14.6491 68.4215 15.2778C67.4332 15.9064 66.6708 16.6923 66.1343 17.6353C66.1908 17.8925 66.2473 18.3068 66.3037 18.8784V31.9948H62.4069V20.0357C62.4069 18.2925 61.941 16.9066 61.0092 15.8779C60.0773 14.8491 58.849 14.3348 57.3242 14.3348C56.1947 14.3348 55.164 14.6348 54.2321 15.2349C53.3003 15.8064 52.5802 16.5923 52.072 17.5924V31.9948H48.1328V11.0771H52.072V14.0347C53.5968 11.7772 55.757 10.6484 58.5525 10.6484C61.6022 10.6484 63.7906 11.8915 65.1177 14.3776C65.9084 13.3203 66.9108 12.4344 68.1251 11.72C69.3393 11.0056 70.6806 10.6484 72.1489 10.6484Z"/><path fill="currentColor" d="M94.2391 32.4234C91.2177 32.4234 88.6763 31.3804 86.615 29.2944C84.5819 27.2083 83.5653 24.6364 83.5653 21.5788C83.5653 18.4926 84.5819 15.9064 86.615 13.8204C88.6763 11.7058 91.2177 10.6484 94.2391 10.6484C97.2323 10.6484 99.7596 11.7058 101.821 13.8204C103.882 15.9064 104.913 18.4926 104.913 21.5788C104.913 24.6364 103.882 27.2083 101.821 29.2944C99.7596 31.3804 97.2323 32.4234 94.2391 32.4234ZM94.2391 28.6514C96.1593 28.6514 97.7829 27.9799 99.1101 26.6368C100.437 25.2651 101.101 23.5791 101.101 21.5788C101.101 19.5499 100.437 17.8496 99.1101 16.478C97.7829 15.1063 96.1593 14.4205 94.2391 14.4205C92.2907 14.4205 90.6529 15.1063 89.3258 16.478C88.0268 17.8496 87.3774 19.5499 87.3774 21.5788C87.3774 23.5791 88.0268 25.2651 89.3258 26.6368C90.6529 27.9799 92.2907 28.6514 94.2391 28.6514Z"/><path fill="currentColor" d="M116.999 32.4234C113.977 32.4234 111.436 31.3804 109.375 29.2944C107.341 27.2083 106.325 24.6364 106.325 21.5788C106.325 18.4926 107.341 15.9064 109.375 13.8204C111.436 11.7058 113.977 10.6484 116.999 10.6484C119.427 10.6484 121.559 11.3771 123.395 12.8345C125.258 14.2919 126.36 16.1065 126.698 18.2783H122.717C122.406 17.1638 121.714 16.2494 120.641 15.535C119.568 14.792 118.354 14.4205 116.999 14.4205C115.05 14.4205 113.413 15.1063 112.085 16.478C110.786 17.8496 110.137 19.5499 110.137 21.5788C110.137 23.5791 110.786 25.2651 112.085 26.6368C113.413 27.9799 115.05 28.6514 116.999 28.6514C118.382 28.6514 119.611 28.2799 120.684 27.5369C121.785 26.7654 122.477 25.7938 122.759 24.6222H126.698C126.416 26.8797 125.343 28.7514 123.479 30.2374C121.616 31.6947 119.455 32.4234 116.999 32.4234Z"/><path fill="currentColor" d="M137.399 10.6484C140.138 10.6484 142.27 11.4057 143.795 12.9202C145.32 14.4348 146.082 16.4494 146.082 18.9641V31.9948H142.355V28.9943C141.677 30.0802 140.731 30.9232 139.517 31.5233C138.331 32.1234 137.032 32.4234 135.62 32.4234C133.615 32.4234 131.978 31.8519 130.707 30.7089C129.436 29.5658 128.801 28.1227 128.801 26.3796C128.801 24.1507 129.705 22.4218 131.512 21.193C133.347 19.9357 135.875 19.307 139.094 19.307H142.355V18.7498C142.355 17.2638 141.903 16.0922 141 15.2349C140.096 14.349 138.896 13.9061 137.399 13.9061C136.1 13.9061 134.985 14.2919 134.053 15.0634C133.121 15.835 132.613 16.8066 132.528 17.9782H129.055C129.196 15.9207 130.072 14.1919 131.681 12.7916C133.291 11.3628 135.197 10.6484 137.399 10.6484ZM136.34 29.08C137.555 29.08 138.698 28.78 139.771 28.1799C140.844 27.5798 141.706 26.7368 142.355 25.6509V22.3075H138.967C134.59 22.3075 132.401 23.522 132.401 25.9509C132.401 26.894 132.754 27.6512 133.46 28.2227C134.194 28.7943 135.154 29.08 136.34 29.08Z"/></svg></a>
+    <div class="navlinks">
+      <a href="#sintesi">Sintesi</a>
+      <a href="#quadro">Il quadro</a>
+      <a href="#deepdive">Deep-dive</a>
+      <a href="#cause">Le cause</a>
+      <a href="#checkout">Checkout &amp; Pagamenti</a>
+      <a href="#giugno25">Svolta Giu '25</a>
+      <a href="#clienti">Clienti N/R</a>
+      <a href="#mito">Mito da sfatare</a>
+      <a href="#piano">Piano d'azione</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <div class="eyebrow">Label Rose · Analisi di performance e-commerce ITA</div>
+    <h1>Perché il fatturato sta calando<span class="reddot">.</span><br>Deep-dive Maggio–Luglio 2026</h1>
+    <p class="sub">Abbiamo messo insieme i numeri di Shopify, Analytics, advertising e ricerche di brand per capire davvero da dove arriva il calo di questo trimestre. E, soprattutto, cosa conviene fare adesso.</p>
+    <div class="metaline">
+      <span>Periodo focus · <b>Mag–Lug 2026 vs 2025</b></span>
+      <span>Mercato · <b>Italia</b></span>
+      <span>Fonti · <b>Shopify · GA4 · Performance Tracker · Google Trends</b></span>
+      <span>A cura di · <b>Moca<span class="dot" style="width:.34em;height:.34em"></span> per Label Rose</b></span>
+    </div>
+  </header>
+
+  <!-- ============ SINTESI ============ -->
+  <section id="sintesi">
+    <div class="sec-k"><span class="num">01</span> Esiti chiave</div>
+    <h2>Il calo c'è, ed è a doppia cifra. Ma il colpevole non è quello che sembra</h2>
+    <p style="max-width:760px">Nel trimestre Maggio–Luglio 2026 il fatturato Italia è <b>€778.720</b>: <b>-26,7% sul 2025</b> e <b>-35% sul 2024</b>. Il primo istinto è dare la colpa all'advertising, ma i numeri dicono altro — <b>la spesa è già stata tagliata del 24%</b> e il ritorno (MER) è rimasto stabile intorno a <b>6,4</b>. Il problema nasce prima del media buying: nella <b>domanda di brand</b>, nella <b>qualità del traffico</b>, nel <b>margine</b> e nella capacità di <b>trattenere i clienti</b>.</p>
+
+    <div class="kpigrid">
+      <div class="kpi"><div class="lab">Fatturato Mag–Lug</div><div class="val">€778,7k</div><div class="chg down">▼ 26,7% YoY</div><div class="ctx">2025: €1,06M · 2024: €1,20M</div></div>
+      <div class="kpi"><div class="lab">Ordini</div><div class="val">11.827</div><div class="chg down">▼ 21,0% YoY</div><div class="ctx">2025: 14.968</div></div>
+      <div class="kpi"><div class="lab">Spesa ADV</div><div class="val">€121,1k</div><div class="chg down">▼ 23,6% YoY</div><div class="ctx">non invariata: già ridotta</div></div>
+      <div class="kpi"><div class="lab">MER e-com</div><div class="val">6,43</div><div class="chg flat">≈ stabile (-4%)</div><div class="ctx">2025: 6,70 · 2024: 13,70</div></div>
+    </div>
+
+    <div class="callout cyan" style="margin-top:26px">
+      <h4>Il punto, in breve</h4>
+      <p>Label Rose non ha (più) un problema di efficienza pubblicitaria: ha un problema di <b>domanda</b> (le ricerche brand sono -64%), di <b>conversione con traffico di bassa qualità</b>, di <b>margine eroso dagli sconti</b> e di una <b>base clienti in contrazione</b> (-21% sul trimestre). Abbassare ancora i budget non risolve — anzi, rischia di accelerare il declino.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUADRO ============ -->
+  <section id="quadro">
+    <div class="sec-k"><span class="num">02</span> Il quadro del trimestre</div>
+    <h2>Fatturato in contrazione da due anni consecutivi</h2>
+    <p style="max-width:760px">Il picco Mag–Lug è stato il 2024 (€1,20M). Il 2025 aveva già ceduto il -11,6%, ma con un raddoppio della spesa media. Il 2026 accelera al ribasso (-26,7%) pur riducendo l'investimento: segno che il motore non è più "trainabile" solo con il paid.</p>
+
+    <div class="grid2" style="margin-top:20px">
+      <div class="chartcard">
+        <h4>Fatturato trimestre Mag–Lug <span class="cap">(€, Italia)</span></h4>
+        <svg viewBox="0 0 380 220" width="100%" role="img" aria-label="Fatturato per anno">
+          <line class="axis" x1="46" y1="185" x2="366" y2="185"/>
+          <!-- bars: max 1.20M -> h scale 150px -->
+          <g>
+            <rect x="70" y="35" width="66" height="150" rx="6" fill="var(--g300)"></rect>
+            <text class="barval" x="103" y="27" text-anchor="middle">€1,20M</text>
+            <text class="barlabel" x="103" y="203" text-anchor="middle">2024</text>
+          </g>
+          <g>
+            <rect x="163" y="52" width="66" height="133" rx="6" fill="var(--rosso-90)"></rect>
+            <text class="barval" x="196" y="44" text-anchor="middle">€1,06M</text>
+            <text class="barlabel" x="196" y="203" text-anchor="middle">2025</text>
+          </g>
+          <g>
+            <rect x="256" y="88" width="66" height="97" rx="6" fill="var(--rosso)"></rect>
+            <text class="barval" x="289" y="80" text-anchor="middle">€778,7k</text>
+            <text class="barlabel" x="289" y="203" text-anchor="middle">2026</text>
+          </g>
+        </svg>
+        <div class="legend"><span>-11,6% nel 2025 · <b style="color:var(--rosso)">-26,7% nel 2026</b></span></div>
+      </div>
+
+      <div class="chartcard">
+        <h4>Spesa ADV vs MER <span class="cap">(spesa in €k, MER = fatturato/spesa)</span></h4>
+        <svg viewBox="0 0 380 220" width="100%" role="img" aria-label="Spesa e MER per anno">
+          <line class="axis" x1="46" y1="185" x2="366" y2="185"/>
+          <!-- spend bars, max 158k -> 150px -->
+          <rect x="70" y="102" width="46" height="83" rx="5" fill="var(--g300)"></rect>
+          <text class="barlabel" x="93" y="203" text-anchor="middle">2024</text>
+          <text class="barval" x="93" y="94" text-anchor="middle" style="font-size:11px">€88k</text>
+          <rect x="167" y="35" width="46" height="150" rx="5" fill="var(--g300)"></rect>
+          <text class="barlabel" x="190" y="203" text-anchor="middle">2025</text>
+          <text class="barval" x="190" y="27" text-anchor="middle" style="font-size:11px">€158k</text>
+          <rect x="264" y="70" width="46" height="115" rx="5" fill="var(--g300)"></rect>
+          <text class="barlabel" x="287" y="203" text-anchor="middle">2026</text>
+          <text class="barval" x="287" y="62" text-anchor="middle" style="font-size:11px">€121k</text>
+          <!-- MER line: 13.7 / 6.7 / 6.4 mapped 0..14 -> y 175..40 -->
+          <polyline points="93,40 190,170 287,173" fill="none" stroke="var(--ciano)" stroke-width="3"/>
+          <circle cx="93" cy="40" r="4.5" fill="var(--ciano)"/><text class="barval" x="93" y="34" text-anchor="middle" style="fill:var(--ciano)">13,7</text>
+          <circle cx="190" cy="170" r="4.5" fill="var(--ciano)"/><text class="barval" x="205" y="163" style="fill:var(--ciano)">6,7</text>
+          <circle cx="287" cy="173" r="4.5" fill="var(--ciano)"/><text class="barval" x="300" y="167" style="fill:var(--ciano)">6,4</text>
+        </svg>
+        <div class="legend"><span><i style="background:var(--g300)"></i>Spesa ADV</span><span><i style="background:var(--ciano)"></i>MER e-com</span></div>
+      </div>
+    </div>
+    <div class="callout">
+      <h4>Come leggere questi numeri</h4>
+      <p>Il vero crollo di efficienza è avvenuto tra <b>2024 e 2025</b> (MER da 13,7 a 6,7, -51%). Nel <b>2025→2026 il MER è stabile</b>: l'azienda non ha "rotto" il paid, l'ha semplicemente <b>spento del 24%</b>. Il fatturato è sceso in proporzione alla spesa, più un problema di conversione che analizziamo sotto.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEEP DIVE ============ -->
+  <section id="deepdive">
+    <div class="sec-k"><span class="num">03</span> Deep-dive mensile</div>
+    <h2>Maggio, Giugno, Luglio — mese per mese</h2>
+    <p style="max-width:760px">Seleziona il mese per vedere il confronto 2024 · 2025 · 2026 sulle metriche chiave. La variazione (Δ) è calcolata <b>2026 vs 2025</b>.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="active" data-m="05" onclick="showMonth('05',this)">Maggio</button>
+      <button data-m="06" onclick="showMonth('06',this)">Giugno</button>
+      <button data-m="07" onclick="showMonth('07',this)">Luglio</button>
+    </div>
+
+    <div class="tblwrap">
+      <table id="ddtable">
+        <thead><tr><th>Metrica</th><th>2024</th><th>2025</th><th>2026</th><th>Δ 26 vs 25</th></tr></thead>
+        <tbody id="ddbody"></tbody>
+      </table>
+    </div>
+    <p class="tin" style="margin-top:10px">CR = ordini / sessioni Shopify Italia (stessa metodologia del Performance Tracker). MER = fatturato e-com / spesa ADV. Sconto% = sconti / vendite lorde. Clienti nuovi/ritorno/totali = <b>Performance Tracker (Italia)</b>, 2024–2026. Nota: l'export Shopify grezzo "new/returning" è invece su scala globale (tutti i mercati) e con definizioni diverse (nuovi = primo ordine), quindi non è confrontabile con le righe Italia: per i clienti fa fede il tracker.</p>
+
+    <div class="callout cyan" id="ddnote">
+      <h4>Cosa salta all'occhio a Maggio</h4>
+      <p id="ddnotep">Le sessioni Italia <b>crescono del +25%</b> ma il conversion rate <b>cala del -27%</b>: portiamo più traffico che converte molto peggio. In parallelo l'AOV crolla del -21% e l'engagement rate scende dal 59% al 32%. È il segnale più netto di un problema di <b>qualità del traffico</b>, non di volume.</p>
+    </div>
+  </section>
+
+  <!-- ============ CAUSE ============ -->
+  <section id="cause">
+    <div class="sec-k"><span class="num">04</span> Le cause reali</div>
+    <h2>Quattro driver strutturali dietro il calo</h2>
+
+    <div class="cause">
+      <div class="badge">1</div>
+      <div>
+        <h3>La domanda di brand è in caduta libera</h3>
+        <p class="lead">Le ricerche di "label rose" su Google sono <b>-64% nel 2026 vs 2025</b> e -71% dal picco 2024.</p>
+        <p>Non è (solo) un problema di conversione: è un problema di <b>persone che cercano il brand</b>. L'interesse di ricerca medio è passato da 4,1 (2024) a 3,3 (2025) a <b>1,2 (2026)</b>. Quando la domanda calda si riduce, il paid deve "comprare" traffico più freddo e meno qualificato — che converte peggio e costa di più. Questo si lega alla riduzione di attività influencer/organica segnalata internamente.</p>
+        <div class="chartcard" style="margin-top:12px;max-width:560px">
+          <h4>Interesse di ricerca brand su Google <span class="cap">(indice medio annuo, Italia)</span></h4>
+          <svg viewBox="0 0 520 180" width="100%" role="img" aria-label="Google Trends brand">
+            <line class="axis" x1="40" y1="150" x2="500" y2="150"/>
+            <!-- points 2022..2026: 0.3,1.5,4.1,3.3,1.2 ; max 4.5 -> scale -->
+            <polyline points="70,141 175,120 280,27 385,50 490,116" fill="none" stroke="var(--rosso)" stroke-width="3"/>
+            <g fill="var(--rosso)">
+              <circle cx="70" cy="141" r="4"/><circle cx="175" cy="120" r="4"/><circle cx="280" cy="27" r="5"/><circle cx="385" cy="50" r="4"/><circle cx="490" cy="116" r="5"/>
+            </g>
+            <g class="barlabel" text-anchor="middle">
+              <text x="70" y="168">2022</text><text x="175" y="168">2023</text><text x="280" y="168">2024</text><text x="385" y="168">2025</text><text x="490" y="168">2026</text>
+            </g>
+            <g class="barval" text-anchor="middle">
+              <text x="280" y="18">4,1</text><text x="385" y="42">3,3</text><text x="490" y="108" style="fill:var(--rosso)">1,2</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="cause">
+      <div class="badge">2</div>
+      <div>
+        <h3>Il traffico converte peggio — e in parte non è nemmeno tracciato</h3>
+        <p class="lead">CR sito <b>-27%</b> a Mag/Giu con sessioni stabili, engagement rate crollato dal <b>~57% al 32–42%</b>.</p>
+        <p>A Maggio 2026 le sessioni Italia salgono a 767k (+25%) ma con engagement del 31,8%. Nei dati GA4 esplode una massa di traffico <b>non attribuito / "Other"</b> (da ~13k a ~116k sessioni in un mese) e traffico paid-social mis-attribuito. Due implicazioni: (a) c'è un probabile <b>problema di tracciamento/UTM</b> che rende cieche le decisioni sui canali; (b) parte del traffico acquistato è <b>di bassa qualità</b> e diluisce la conversione.</p>
+        <span class="pill">CR Mag 0,79% → 0,58%</span><span class="pill">Engagement 59% → 32%</span><span class="pill">Sessioni "Other" +760%</span>
+        <div class="chartcard" style="margin-top:14px;max-width:600px">
+          <h4>Engagement rate vs Conversion rate <span class="cap">(GA4, Mag–Lug)</span></h4>
+          <svg viewBox="0 0 560 200" width="100%" role="img" aria-label="Engagement e CR">
+            <line class="axis" x1="40" y1="165" x2="540" y2="165"/>
+            <!-- three month groups; engagement% mapped 0..60 -> 130px -->
+            <g class="barlabel" text-anchor="middle"><text x="120" y="185">Maggio</text><text x="290" y="185">Giugno</text><text x="460" y="185">Luglio</text></g>
+            <!-- Eng 2025 vs 2026 bars -->
+            <!-- May -->
+            <rect x="92" y="37" width="24" height="128" rx="4" fill="var(--g300)"></rect><text class="barval" x="104" y="30" text-anchor="middle" style="font-size:10px">59%</text>
+            <rect x="122" y="96" width="24" height="69" rx="4" fill="var(--rosso)"></rect><text class="barval" x="134" y="90" text-anchor="middle" style="font-size:10px">32%</text>
+            <!-- Jun -->
+            <rect x="262" y="47" width="24" height="118" rx="4" fill="var(--g300)"></rect><text class="barval" x="274" y="40" text-anchor="middle" style="font-size:10px">54%</text>
+            <rect x="292" y="89" width="24" height="76" rx="4" fill="var(--rosso)"></rect><text class="barval" x="304" y="83" text-anchor="middle" style="font-size:10px">35%</text>
+            <!-- Jul -->
+            <rect x="432" y="50" width="24" height="115" rx="4" fill="var(--g300)"></rect><text class="barval" x="444" y="43" text-anchor="middle" style="font-size:10px">53%</text>
+            <rect x="462" y="75" width="24" height="90" rx="4" fill="var(--rosso)"></rect><text class="barval" x="474" y="69" text-anchor="middle" style="font-size:10px">42%</text>
+          </svg>
+          <div class="legend"><span><i style="background:var(--g300)"></i>Engagement 2025</span><span><i style="background:var(--rosso)"></i>Engagement 2026</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cause">
+      <div class="badge">3</div>
+      <div>
+        <h3>La marginalità è erosa da sconti ormai strutturali</h3>
+        <p class="lead">Sconto medio <b>~31% ogni mese</b> nel 2026 (vs ~20% nel 2024), con Giugno a +72% YoY.</p>
+        <p>Le promozioni non sono più tattiche: sono lo stato di fatto. A Giugno lo sconto sale al 30% (da 17%), e i <b>bestseller 2026 sono clearance</b> — "Borsa Antica €9,95", "Foulard svendita" — mentre nel 2025 il volume era trainato da <b>gift-with-purchase e Mystery Box</b> (Summer Pack, Napoli Edition, penne e sticker regalo) oggi scomparsi. Risultato: AOV -7% sul trimestre (fino a -21% a Maggio) e assortimento che vende ridotto del -39% a Luglio (da 1.058 a 648 prodotti). I resi inoltre salgono (Giugno 3,7%, da 1,5%).</p>
+        <div class="chartcard" style="margin-top:12px;max-width:600px">
+          <h4>Tasso di sconto medio <span class="cap">(sconti / vendite lorde, Mag–Lug)</span></h4>
+          <svg viewBox="0 0 560 190" width="100%" role="img" aria-label="Sconti">
+            <line class="axis" x1="40" y1="160" x2="540" y2="160"/>
+            <g class="barlabel" text-anchor="middle"><text x="120" y="180">Maggio</text><text x="290" y="180">Giugno</text><text x="460" y="180">Luglio</text></g>
+            <!-- scale 0..45% -> 120px ; 2024 vs 2026 -->
+            <rect x="95" y="98" width="26" height="62" rx="4" fill="var(--g300)"></rect><text class="barval" x="108" y="92" text-anchor="middle" style="font-size:10px">23%</text>
+            <rect x="127" y="76" width="26" height="84" rx="4" fill="var(--rosso)"></rect><text class="barval" x="140" y="70" text-anchor="middle" style="font-size:10px">32%</text>
+            <rect x="265" y="116" width="26" height="44" rx="4" fill="var(--g300)"></rect><text class="barval" x="278" y="110" text-anchor="middle" style="font-size:10px">17%</text>
+            <rect x="297" y="80" width="26" height="80" rx="4" fill="var(--rosso)"></rect><text class="barval" x="310" y="74" text-anchor="middle" style="font-size:10px">30%</text>
+            <rect x="435" y="105" width="26" height="55" rx="4" fill="var(--g300)"></rect><text class="barval" x="448" y="99" text-anchor="middle" style="font-size:10px">20%</text>
+            <rect x="467" y="74" width="26" height="86" rx="4" fill="var(--rosso)"></rect><text class="barval" x="480" y="68" text-anchor="middle" style="font-size:10px">32%</text>
+          </svg>
+          <div class="legend"><span><i style="background:var(--g300)"></i>2024</span><span><i style="background:var(--rosso)"></i>2026</span> <span class="cap">(2025 con picchi promo puntuali 42–43%)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cause">
+      <div class="badge">4</div>
+      <div>
+        <h3>La base clienti si contrae e i canali di retention perdono colpi</h3>
+        <p class="lead">Clienti totali <b>-21%</b> sul trimestre (nuovi -28%, ricorrenti -16%); a Giugno nuovi <b>-45%</b>. Email -37%, social/organico -64%.</p>
+        <p>Il dato del Performance Tracker (Italia) è netto: la base clienti si assottiglia su <b>entrambi i fronti</b> — <b>nuovi -28%</b> e <b>ricorrenti -16%</b> sul trimestre — con Giugno critico (nuovi -45%, totali -31%). Non è solo acquisizione: anche la <b>retention cede</b>. I canali che alimentano la base esistente perdono colpi: sessioni <b>email</b> da 27k a 17k a Luglio (-37%), <b>social/referral organico</b> -64% coerentemente con la minore attività influencer. E un dato strutturale nuovo: <b>TikTok Shop è già il 16,8% delle transazioni</b> (da 0% nel 2024), Klarna entra al 7,9%. Parte delle vendite si sposta <b>fuori dal sito</b>, verso il marketplace TikTok — il che tra l'altro sottostima meccanicamente il CR del sito.</p>
+        <div class="chartcard" style="margin-top:12px;max-width:600px">
+          <h4>Mix metodi di pagamento <span class="cap">(% transazioni, Mag–Lug)</span></h4>
+          <svg viewBox="0 0 560 150" width="100%" role="img" aria-label="Mix pagamenti">
+            <!-- stacked horizontal bars per year; scale 100% -> 460px from x=60 -->
+            <g class="barlabel"><text x="10" y="34">2024</text><text x="10" y="79">2025</text><text x="10" y="124">2026</text></g>
+            <!-- 2024: shopify 49.9, paypal 29.8, scalapay 17.3, altro 3 -->
+            <g>
+              <rect x="60" y="20" width="229" height="22" fill="var(--nero)"/><rect x="289" y="20" width="137" height="22" fill="var(--g300)"/><rect x="426" y="20" width="79" height="22" fill="var(--rosso-30)"/><rect x="505" y="20" width="14" height="22" fill="var(--g200)"/>
+            </g>
+            <!-- 2025: shopify 48.8, tiktok 9.7, paypal 20.8, scalapay 16, altro 4.7 -->
+            <g>
+              <rect x="60" y="65" width="224" height="22" fill="var(--nero)"/><rect x="284" y="65" width="45" height="22" fill="var(--ciano)"/><rect x="329" y="65" width="96" height="22" fill="var(--g300)"/><rect x="425" y="65" width="74" height="22" fill="var(--rosso-30)"/><rect x="499" y="65" width="20" height="22" fill="var(--g200)"/>
+            </g>
+            <!-- 2026: shopify 46.6, tiktok 16.8, paypal 14.9, klarna 7.9, scalapay 6.8, cash+altro 7 -->
+            <g>
+              <rect x="60" y="110" width="214" height="22" fill="var(--nero)"/><rect x="274" y="110" width="77" height="22" fill="var(--ciano)"/><rect x="351" y="110" width="69" height="22" fill="var(--g300)"/><rect x="420" y="110" width="36" height="22" fill="var(--rosso)"/><rect x="456" y="110" width="31" height="22" fill="var(--rosso-30)"/><rect x="487" y="110" width="32" height="22" fill="var(--g200)"/>
+            </g>
+          </svg>
+          <div class="legend"><span><i style="background:var(--nero)"></i>Shopify Pay</span><span><i style="background:var(--ciano)"></i>TikTok Shop</span><span><i style="background:var(--g300)"></i>PayPal</span><span><i style="background:var(--rosso)"></i>Klarna</span><span><i style="background:var(--rosso-30)"></i>Scalapay</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKOUT & PAGAMENTI ============ -->
+  <section id="checkout">
+    <div class="sec-k"><span class="num">05</span> Checkout &amp; Pagamenti</div>
+    <h2>Il checkout non è il collo di bottiglia — il problema è a monte</h2>
+    <p style="max-width:770px">Analisi del funnel <b>carrello → checkout → acquisto</b> (Customer behavior) e del comportamento dei metodi di pagamento. La sorpresa: il tasso di completamento del checkout è <b>migliorato</b> nel 2026. Chi arriva al checkout compra di più. Si perde traffico <b>prima</b>, nel passaggio dal carrello al checkout, e nella qualità di chi mettiamo nel carrello.</p>
+
+    <div class="grid2" style="margin-top:18px">
+      <div class="chartcard">
+        <h4>Tasso di completamento checkout <span class="cap">(acquisti / sessioni arrivate al checkout, Mag–Lug)</span></h4>
+        <svg viewBox="0 0 380 210" width="100%" role="img" aria-label="Completamento checkout">
+          <line class="axis" x1="46" y1="175" x2="366" y2="175"/>
+          <rect x="78" y="105" width="60" height="70" rx="6" fill="var(--g300)"></rect><text class="barval" x="108" y="97" text-anchor="middle">20,8%</text><text class="barlabel" x="108" y="193" text-anchor="middle">2024</text>
+          <rect x="168" y="101" width="60" height="74" rx="6" fill="var(--rosso-90)"></rect><text class="barval" x="198" y="93" text-anchor="middle">21,9%</text><text class="barlabel" x="198" y="193" text-anchor="middle">2025</text>
+          <rect x="258" y="63" width="60" height="112" rx="6" fill="var(--ciano)"></rect><text class="barval" x="288" y="55" text-anchor="middle" style="fill:var(--ciano)">33,4%</text><text class="barlabel" x="288" y="193" text-anchor="middle">2026</text>
+        </svg>
+        <div class="legend"><span>Il checkout <b style="color:var(--ciano)">converte meglio</b> nel 2026 (+53%)</span></div>
+      </div>
+      <div class="chartcard">
+        <h4>Dal carrello al checkout <span class="cap">(% sessioni con carrello che avviano il checkout, Mag–Lug)</span></h4>
+        <svg viewBox="0 0 380 210" width="100%" role="img" aria-label="Carrello a checkout">
+          <line class="axis" x1="46" y1="175" x2="366" y2="175"/>
+          <rect x="78" y="55" width="60" height="120" rx="6" fill="var(--g300)"></rect><text class="barval" x="108" y="47" text-anchor="middle">~100%*</text><text class="barlabel" x="108" y="193" text-anchor="middle">2024</text>
+          <rect x="168" y="94" width="60" height="81" rx="6" fill="var(--rosso-90)"></rect><text class="barval" x="198" y="86" text-anchor="middle">67,5%</text><text class="barlabel" x="198" y="193" text-anchor="middle">2025</text>
+          <rect x="258" y="117" width="60" height="58" rx="6" fill="var(--rosso)"></rect><text class="barval" x="288" y="109" text-anchor="middle" style="fill:var(--rosso)">48,0%</text><text class="barlabel" x="288" y="193" text-anchor="middle">2026</text>
+        </svg>
+        <div class="legend"><span>Qui si <b style="color:var(--rosso)">perde terreno</b>: -30% vs 2025</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>Cosa dice il funnel</h4>
+      <p>Le sessioni che <b>aggiungono al carrello</b> sono tante (e in crescita), ma una quota minore avvia il checkout (48% vs 68%), mentre chi arriva al checkout <b>completa di più</b> (33% vs 22%). Traduzione: non è un problema di UX di pagamento, ma di <b>intento</b> — troppo traffico di bassa qualità riempie il carrello senza convertire — e di <b>frizione nel passaggio carrello→checkout</b> (costi/spedizione mostrati tardi, login forzato, opzioni di pagamento). È esattamente qui che servono heatmap e session recording (Clarity), non un rifacimento del checkout.</p>
+    </div>
+
+    <h3 style="margin-top:34px">Pagamenti: il mix cambia e alza i resi</h3>
+    <p style="max-width:770px">Due ingressi strutturali cambiano l'economia: <b>TikTok Shop</b> (lanciato ad Aprile 2025) e <b>Klarna</b> (da Dicembre 2025). Entrambi hanno tassi di rimborso molto più alti della media: sono un motore silenzioso dell'aumento dei resi.</p>
+    <div class="chartcard" style="margin-top:14px;max-width:640px">
+      <h4>Tasso di rimborso per metodo di pagamento <span class="cap">(rimborsi / incassato, intero periodo)</span></h4>
+      <svg viewBox="0 0 600 200" width="100%" role="img" aria-label="Refund per gateway">
+        <g class="barlabel"><text x="8" y="34">Shopify Pay</text><text x="8" y="66">PayPal</text><text x="8" y="98">Scalapay</text><text x="8" y="130">Klarna</text><text x="8" y="162">TikTok Shop</text></g>
+        <!-- scale: 5.5% -> 440px from x=110 -->
+        <rect x="110" y="22" width="78" height="18" fill="var(--g300)"/><text class="barval" x="196" y="35" style="font-size:11px">0,97%</text>
+        <rect x="110" y="54" width="106" height="18" fill="var(--g300)"/><text class="barval" x="224" y="67" style="font-size:11px">1,32%</text>
+        <rect x="110" y="86" width="116" height="18" fill="var(--g300)"/><text class="barval" x="234" y="99" style="font-size:11px">1,45%</text>
+        <rect x="110" y="118" width="283" height="18" fill="var(--rosso-90)"/><text class="barval" x="401" y="131" style="font-size:11px">3,54%</text>
+        <rect x="110" y="150" width="402" height="18" fill="var(--rosso)"/><text class="barval" x="520" y="163" style="font-size:11px;fill:var(--rosso)">5,02%</text>
+      </svg>
+      <div class="legend"><span>TikTok Shop rimborsa <b style="color:var(--rosso)">5×</b> più di Shopify Pay · quota TikTok Shop salita al 18–22% delle transazioni nel 2026</span></div>
+    </div>
+    <p class="tin" style="margin-top:10px">*2024: il rapporto checkout/carrello supera il 100% perché in GA4 il checkout può essere avviato anche senza "aggiungi al carrello" (es. Buy Now); per questo il dato più affidabile è il completamento del checkout. Funnel = Customer behavior (cross-market). Resi per gateway = Payments by gateway.</p>
+  </section>
+
+  <!-- ============ GIUGNO 2025 ============ -->
+  <section id="giugno25">
+    <div class="sec-k"><span class="num">06</span> La svolta di Giugno 2025</div>
+    <h2>Dove la crescita si è fermata — e cosa è successo</h2>
+    <p style="max-width:770px">Confrontando ogni mese con lo stesso mese dell'anno prima, l'e-commerce cresceva stabilmente fino alla primavera 2025. Poi, da <b>Giugno 2025</b>, la variazione YoY diventa negativa e non torna più positiva. Non è un singolo interruttore: è il volano della crescita che si inceppa e l'inizio di uno spostamento di canale.</p>
+
+    <div class="chartcard" style="margin-top:16px">
+      <h4>Crescita fatturato anno su anno, mese per mese <span class="cap">(2025 vs 2024, Italia)</span></h4>
+      <svg viewBox="0 0 620 200" width="100%" role="img" aria-label="YoY mensile 2025 vs 2024">
+        <line x1="40" y1="110" x2="600" y2="110" stroke="var(--text-soft)" stroke-width="1"/>
+        <line x1="292" y1="20" x2="292" y2="185" stroke="var(--rosso)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="298" y="30" style="font-size:11px;font-weight:700;fill:var(--rosso)" font-family="inherit">svolta</text>
+        <!-- bars: zero=110, 1.1px/% ; months Feb..Dec -->
+        <!-- Feb +57 -->
+        <rect x="46" y="47" width="34" height="63" fill="var(--pos)"/><text class="barlabel" x="63" y="199" text-anchor="middle">F</text><text class="barval" x="63" y="42" text-anchor="middle" style="font-size:9px;fill:var(--pos)">+57</text>
+        <rect x="96" y="85" width="34" height="25" fill="var(--pos)"/><text class="barlabel" x="113" y="199" text-anchor="middle">M</text><text class="barval" x="113" y="80" text-anchor="middle" style="font-size:9px;fill:var(--pos)">+23</text>
+        <rect x="146" y="110" width="34" height="9" fill="var(--g300)"/><text class="barlabel" x="163" y="199" text-anchor="middle">A</text><text class="barval" x="163" y="132" text-anchor="middle" style="font-size:9px">-8</text>
+        <rect x="196" y="86" width="34" height="24" fill="var(--pos)"/><text class="barlabel" x="213" y="199" text-anchor="middle">M</text><text class="barval" x="213" y="81" text-anchor="middle" style="font-size:9px;fill:var(--pos)">+22</text>
+        <!-- Jun -23 -->
+        <rect x="246" y="110" width="34" height="25" fill="var(--rosso)"/><text class="barlabel" x="263" y="199" text-anchor="middle">G</text><text class="barval" x="263" y="148" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-23</text>
+        <rect x="300" y="110" width="34" height="26" fill="var(--rosso)"/><text class="barlabel" x="317" y="199" text-anchor="middle">L</text><text class="barval" x="317" y="149" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-24</text>
+        <rect x="350" y="110" width="34" height="18" fill="var(--rosso)"/><text class="barlabel" x="367" y="199" text-anchor="middle">A</text><text class="barval" x="367" y="141" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-16</text>
+        <rect x="400" y="110" width="34" height="7" fill="var(--rosso)"/><text class="barlabel" x="417" y="199" text-anchor="middle">S</text><text class="barval" x="417" y="130" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-6</text>
+        <rect x="450" y="110" width="34" height="39" fill="var(--rosso)"/><text class="barlabel" x="467" y="199" text-anchor="middle">O</text><text class="barval" x="467" y="162" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-35</text>
+        <rect x="500" y="110" width="34" height="32" fill="var(--rosso)"/><text class="barlabel" x="517" y="199" text-anchor="middle">N</text><text class="barval" x="517" y="155" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-29</text>
+        <rect x="550" y="110" width="34" height="21" fill="var(--rosso)"/><text class="barlabel" x="567" y="199" text-anchor="middle">D</text><text class="barval" x="567" y="144" text-anchor="middle" style="font-size:9px;fill:var(--rosso)">-19</text>
+      </svg>
+      <div class="legend"><span><i style="background:var(--pos)"></i>crescita YoY</span><span><i style="background:var(--rosso)"></i>calo YoY</span><span class="cap">(Gennaio escluso: +564% da base 2024 parziale)</span></div>
+    </div>
+
+    <div class="grid2" style="margin-top:24px">
+      <div>
+        <h3>Cosa è cambiato intorno a Giugno 2025</h3>
+        <p>Quattro fattori convergono nella stessa finestra temporale:</p>
+        <ul class="clean">
+          <li><span class="q">1</span><span><b>Lancio di TikTok Shop (Aprile 2025):</b> subito il 28,5% delle transazioni del mese. Un nuovo canale che intercetta domanda e sposta vendite fuori dal sito — con resi al 5%.</span></li>
+          <li><span class="q">2</span><span><b>Spesa aggressiva ma inefficiente:</b> nella primavera 2025 la spesa tocca il picco (Maggio €58k) ma il MER era già dimezzato (13,7→6,7). Si comprava traffico che non convertiva.</span></li>
+          <li><span class="q">3</span><span><b>I picchi di brand del 2024 non si ripetono:</b> la ricerca brand nel H2-2025 è -25% vs H2-2024; il volano di domanda costruito nel 2024 si sgonfia.</span></li>
+          <li><span class="q">4</span><span><b>Acquisizione nuovi in calo:</b> meno nuovi clienti nel 2025 → bacino di ricorrenti più piccolo che alimenta la seconda metà dell'anno.</span></li>
+        </ul>
+      </div>
+      <div class="callout cyan" style="margin:0">
+        <h4>Come lo leggiamo</h4>
+        <p>Fino a Maggio 2025 la crescita reggeva grazie allo slancio del 2024. Da Giugno il quadro si ribalta: la <b>domanda organica di brand smette di crescere</b>, il <b>paid perde efficienza</b> e <b>TikTok Shop</b> inizia a catturare (e in parte cannibalizzare) la domanda. Il 2026 eredita questa dinamica e la peggiora. Il punto non è "cosa è rotto a Giugno", ma che <b>il motore di crescita del 2024 — brand + acquisizione efficiente — ha smesso di girare</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLIENTI N/R ============ -->
+  <section id="clienti">
+    <div class="sec-k"><span class="num">07</span> Clienti nuovi vs ricorrenti</div>
+    <h2>Perché il fatturato non si rialza: un problema di bacino</h2>
+    <p style="max-width:770px">Il calo del fatturato (-21% sul trimestre) è quasi esattamente il calo dei <b>clienti totali</b> (-21%). Non è un problema di frequenza d'acquisto (stabile a ~1,35 ordini per cliente ricorrente): è un problema di <b>quante persone entrano ed è possibile trattenere</b>. È una dinamica da "bacino che si svuota".</p>
+
+    <div class="kpigrid" style="margin-top:6px">
+      <div class="kpi"><div class="lab">Nuovi clienti</div><div class="val">-28%</div><div class="chg down">▼ trimestre YoY</div><div class="ctx">acquisizione sotto-alimentata da 2 anni</div></div>
+      <div class="kpi"><div class="lab">Ricorrenti</div><div class="val">-16%</div><div class="chg down">▼ trimestre YoY</div><div class="ctx">bacino eroso dai pochi nuovi</div></div>
+      <div class="kpi"><div class="lab">Quota fatturato ricorrenti</div><div class="val">60–72%</div><div class="chg flat">dipendenza alta</div><div class="ctx">Giu 2026: 72%</div></div>
+      <div class="kpi"><div class="lab">AOV nuovo vs ricorrente</div><div class="val">€55 / €65</div><div class="chg down">entrambi -20% vs 2024</div><div class="ctx">dato cross-market · ipotesi "sconto = basso valore" da validare con LTV</div></div>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <h4>La diagnosi in breve</h4>
+      <p>Il business dipende dai clienti ricorrenti (60–72% del fatturato), ma il <b>rubinetto dei nuovi è quasi chiuso</b> da due anni. Meno nuovi oggi = meno ricorrenti domani: il bacino si restringe a catena. In più, i nuovi clienti vengono acquisiti con <b>scontrino basso</b> (AOV €46–59, spinto da saldi/clearance): ricorda il profilo del "cacciatore di sconti", potenzialmente a basso valore nel tempo — ipotesi da validare con le coorti. La leva vera non è spremere di più i ricorrenti, ma <b>riaprire un'acquisizione di qualità</b> e trattenere meglio le prime coorti.</p>
+    </div>
+
+    <h3 style="margin-top:30px">Cosa vale la pena approfondire (e con quali dati)</h3>
+    <div class="tblwrap">
+      <table style="min-width:640px">
+        <thead><tr><th>Domanda strategica</th><th style="text-align:left">Analisi da fare</th><th style="text-align:left">Dato necessario</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Le coorti recenti tornano meno?</td><td style="text-align:left">Curve di retention per coorte di acquisizione (riacquisto a 1/3/6 mesi)</td><td style="text-align:left">Export ordini con customer ID / Klaviyo</td></tr>
+          <tr><td style="font-weight:600">Chi acquisiamo ha valore?</td><td style="text-align:left">LTV per canale e per primo prodotto/livello di sconto del 1° ordine</td><td style="text-align:left">Ordini + attribuzione canale + sconto</td></tr>
+          <tr><td style="font-weight:600">I flussi di retention funzionano?</td><td style="text-align:left">Tempo al 2° acquisto + performance welcome/post-acquisto/win-back</td><td style="text-align:left">Klaviyo (open, CTR, revenue per flow)</td></tr>
+          <tr><td style="font-weight:600">Chi sta per perdersi?</td><td style="text-align:left">Segmentazione RFM e riattivazione dei ricorrenti a rischio</td><td style="text-align:left">Storico ordini per cliente</td></tr>
+          <tr><td style="font-weight:600">TikTok Shop porta clienti veri?</td><td style="text-align:left">Tasso "one-and-done", refund 5%, migrazione al sito</td><td style="text-align:left">Ordini TikTok Shop con customer ID</td></tr>
+          <tr><td style="font-weight:600">Il paid porta NUOVI o retargeta?</td><td style="text-align:left">Split nuovi/ricorrenti per campagna; esclusione clienti esistenti/VIP</td><td style="text-align:left">Meta/Google + match clienti</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tin" style="margin-top:10px">Nuovi/ricorrenti e totali = Performance Tracker (Italia). Frequenza, AOV nuovo/ricorrente e quota fatturato = export Shopify new/returning (cross-market, usato per ratio e trend). Per coorti e LTV serve un export ordini a livello cliente.</p>
+  </section>
+
+  <!-- ============ MITO ============ -->
+  <section id="mito">
+    <div class="sec-k"><span class="num">08</span> Il mito da sfatare</div>
+    <h2>"Spesa invariata, ROAS crollato" — non nel 2026</h2>
+    <div class="grid2" style="margin-top:8px">
+      <div>
+        <p>L'ipotesi di partenza (spesa ferma a ~144k€, ROAS da 11 a 7) descriveva bene il passaggio <b>2024→2025</b>. Ma sul trimestre <b>2025→2026</b> i dati dicono altro, ed è importante per non sbagliare la terapia:</p>
+        <ul class="clean">
+          <li><span class="q">✗</span><span><b>La spesa NON è invariata:</b> è stata <b>tagliata del 24%</b> (Meta -23%, Google -30%, TikTok -17%).</span></li>
+          <li><span class="q">✗</span><span><b>Il ROAS/MER NON è crollato nel 2026:</b> è <b>stabile a ~6,4</b>. Il crollo (-51%) era già avvenuto un anno prima.</span></li>
+          <li><span class="q">✓</span><span><b>Quindi la priorità non è "abbassare i budget"</b> (già fatto): è ricostruire <b>domanda, conversione e margine</b>.</span></li>
+        </ul>
+      </div>
+      <div class="callout" style="margin:0">
+        <h4>Perché conta</h4>
+        <p>Se tagliassimo ancora l'ADV pensando che sia il colpevole, ridurremmo l'unica leva che oggi funziona ancora a MER ~6,4, accelerando la contrazione. Il denaro va <b>spostato</b> — non tolto — verso top-funnel/brand, CRO e retention, dove il ritorno marginale oggi è più alto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PIANO ============ -->
+  <section id="piano">
+    <div class="sec-k"><span class="num">09</span> Piano d'azione</div>
+    <h2>Cosa fare adesso, in ordine di priorità</h2>
+    <p style="max-width:760px">Tre mosse, in ordine di priorità. Per ognuna trovi chi la porta avanti e come capiamo se funziona. La prima — riaccendere la domanda — viene prima di tutto: se non torna gente interessata al brand, ottimizzare il resto serve a poco.</p>
+
+    <div class="act">
+      <div class="top"><span class="prio p1">P1</span><h3>Riaccendere la domanda di brand</h3><span class="tag">Top-funnel</span></div>
+      <p style="margin:2px 0 10px;color:var(--text-soft);font-size:14px">Le ricerche brand sono a -64%: prima di ottimizzare la conversione bisogna far tornare le persone a cercare Label Rose. Tre leve concrete, tutte su canali che oggi restano quasi inutilizzati per costruire domanda.</p>
+      <h4 style="font-size:14px;margin:14px 0 4px">Awareness e contenuto dove oggi c'è solo vendita</h4>
+      <ul>
+        <li>Instagram, YouTube e il lato "contenuto" di TikTok oggi lavorano solo in fondo al funnel. Servono formati top-funnel — reel e short di brand, storytelling di prodotto, dietro le quinte, styling — pensati per farsi scoprire, non per vendere subito.</li>
+        <li>Rimettere in campo <b>creator mid e micro</b> del fashion donna: è la benzina creativa mancata proprio mentre la domanda calava.</li>
+      </ul>
+      <h4 style="font-size:14px;margin:14px 0 4px">ManyChat: trasformare in ordini l'automation che già usate</h4>
+      <ul>
+        <li><b>Commenta-per-ricevere:</b> sui reel e post che vanno bene, chi commenta una parola chiave riceve in DM il link diretto al prodotto (o al checkout con la borsa già nel carrello).</li>
+        <li><b>Story reply → DM:</b> chi risponde a una story riceve in automatico il link con il codice welcome o il richiamo alla soglia di spedizione gratuita.</li>
+        <li><b>Recupero in DM:</b> chi clicca ma non compra entra in un follow-up automatico a distanza di qualche ora.</li>
+        <li><b>"Trova la tua borsa":</b> un mini-quiz in DM che consiglia il prodotto e manda il link — più coinvolgente di un banner, e converte meglio.</li>
+        <li>In ogni flusso, <b>raccogliere l'opt-in</b> (email/telefono): così ogni interazione social costruisce anche la base owned.</li>
+      </ul>
+      <h4 style="font-size:14px;margin:14px 0 4px">WhatsApp: il canale dei lanci che oggi manca</h4>
+      <ul>
+        <li>Creare una <b>lista broadcast</b> (opt-in) e usarla per i drop: annuncio in anteprima ed <b>early access</b> a chi è iscritto.</li>
+        <li>Automazione "iscriviti al drop" con reminder a T-24h, T-1h e "siamo live", link al prodotto in un tap.</li>
+        <li>Broadcast <b>segmentati</b> (VIP, chi ha già comprato quella collezione) con countdown e "ultimi pezzi" per alzare il CTR.</li>
+        <li>Usare WhatsApp anche come <b>retargeting a costo quasi zero</b>, e far crescere la lista con campagne click-to-WhatsApp.</li>
+      </ul>
+      <div class="meta-row"><span class="owner"><b>Chi:</b> <span class="chip">Cristina</span> <span class="chip">Matteo</span></span><span><b>Come misuriamo:</b> ricerche brand, reach, nuovi opt-in email/WhatsApp, ordini attribuiti a ManyChat e ai broadcast</span></div>
+    </div>
+
+    <div class="act">
+      <div class="top"><span class="prio p2">P2</span><h3>CRO sul sito: dal traffico agli ordini</h3><span class="tag">Conversione</span></div>
+      <ul>
+        <li>Attivare heatmap e session recording (Microsoft Clarity) su checkout e pagine categoria; individuare le frizioni reali.</li>
+        <li>Correggere l'ordinamento dei prodotti sold-out (ancora in alto nelle categorie) e testare il checkout.</li>
+        <li>Introdurre raccomandazioni dinamiche one-to-one (es. Hello Retail) per sostenere l'AOV.</li>
+        <li>Valutare l'inserimento di un <b>CRO specialist</b> dedicato: è un mestiere a tempo pieno.</li>
+      </ul>
+      <div class="meta-row"><span class="owner"><b>Chi:</b> <span class="chip">Cristina</span> <span class="chip">CRO specialist</span></span><span><b>Come misuriamo:</b> CR del sito, passaggio carrello→checkout, AOV</span></div>
+    </div>
+
+    <div class="act">
+      <div class="top"><span class="prio p3">P3</span><h3>Ottimizzare mix &amp; struttura media (non tagliare)</h3><span class="tag">Paid</span></div>
+      <ul>
+        <li>Con MER stabile ~6,4, capire se c'è spazio per re-investire su prospecting freddo di qualità — per esempio una campagna a basso budget/giorno (minimo 20-30€) con obiettivo <b>Reach</b> e/o <b>Video Views</b> per alimentare pubblico nuovo.</li>
+        <li>Consolidare le campagne Meta (da 3 a 1–2) su Advantage+, escludendo i clienti esistenti (chi ha fatto almeno 1 ordine) e la lista VIP. L'ideale è testare <b>1 ASC</b> provando la nuova funzionalità di acquisizione nuovi clienti a livello di adset.</li>
+        <li>Ricordarsi il refresh delle creatività ogni 2–3 settimane, con 40–50 inserzioni per adset.</li>
+        <li>Focalizzare il retargeting soprattutto su canali a basso costo (email/WhatsApp); valutare Criteo solo per il remarketing e con budget contenuto.</li>
+      </ul>
+      <div class="meta-row"><span class="owner"><b>Chi:</b> <span class="chip">Cristina</span> <span class="chip">Matteo</span></span><span><b>Come misuriamo:</b> MER, CAC, ROAS del prospecting, nuovi clienti</span></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <hr class="hr-lite">
+    <p><b>Nota metodologica.</b> Elaborazione su dati Shopify (vendite, ordini, resi, clienti nuovi/di ritorno, pagamenti, prodotti), Google Analytics 4 (sessioni, engagement, canali), Performance Tracker interno (spesa ADV per canale) e Google Trends (domanda brand). Focus mercato Italia, periodo Maggio–Luglio 2024/2025/2026. Il fatturato è "IVATO netto resi" (total sales Shopify). Il CR replica la metodologia del tracker (ordini / sessioni Shopify Italia). Alcune metriche GA4 sono cross-market e usate per lettura di trend, non come valori assoluti.</p>
+    <svg class="foot-logo" style="margin-top:18px" viewBox="0 0 147 39" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Moca"><ellipse cx="19.2527" cy="19.5" rx="19.2527" ry="19.5" fill="#E52217"/><path fill="currentColor" d="M72.1489 10.6484C74.6903 10.6484 76.7234 11.4343 78.2482 13.006C79.8013 14.5777 80.5778 16.6923 80.5778 19.3499V31.9948H76.6811V20.0357C76.6811 18.2925 76.2151 16.9066 75.2833 15.8779C74.3515 14.8491 73.0949 14.3348 71.5136 14.3348C70.4688 14.3348 69.4381 14.6491 68.4215 15.2778C67.4332 15.9064 66.6708 16.6923 66.1343 17.6353C66.1908 17.8925 66.2473 18.3068 66.3037 18.8784V31.9948H62.4069V20.0357C62.4069 18.2925 61.941 16.9066 61.0092 15.8779C60.0773 14.8491 58.849 14.3348 57.3242 14.3348C56.1947 14.3348 55.164 14.6348 54.2321 15.2349C53.3003 15.8064 52.5802 16.5923 52.072 17.5924V31.9948H48.1328V11.0771H52.072V14.0347C53.5968 11.7772 55.757 10.6484 58.5525 10.6484C61.6022 10.6484 63.7906 11.8915 65.1177 14.3776C65.9084 13.3203 66.9108 12.4344 68.1251 11.72C69.3393 11.0056 70.6806 10.6484 72.1489 10.6484Z"/><path fill="currentColor" d="M94.2391 32.4234C91.2177 32.4234 88.6763 31.3804 86.615 29.2944C84.5819 27.2083 83.5653 24.6364 83.5653 21.5788C83.5653 18.4926 84.5819 15.9064 86.615 13.8204C88.6763 11.7058 91.2177 10.6484 94.2391 10.6484C97.2323 10.6484 99.7596 11.7058 101.821 13.8204C103.882 15.9064 104.913 18.4926 104.913 21.5788C104.913 24.6364 103.882 27.2083 101.821 29.2944C99.7596 31.3804 97.2323 32.4234 94.2391 32.4234ZM94.2391 28.6514C96.1593 28.6514 97.7829 27.9799 99.1101 26.6368C100.437 25.2651 101.101 23.5791 101.101 21.5788C101.101 19.5499 100.437 17.8496 99.1101 16.478C97.7829 15.1063 96.1593 14.4205 94.2391 14.4205C92.2907 14.4205 90.6529 15.1063 89.3258 16.478C88.0268 17.8496 87.3774 19.5499 87.3774 21.5788C87.3774 23.5791 88.0268 25.2651 89.3258 26.6368C90.6529 27.9799 92.2907 28.6514 94.2391 28.6514Z"/><path fill="currentColor" d="M116.999 32.4234C113.977 32.4234 111.436 31.3804 109.375 29.2944C107.341 27.2083 106.325 24.6364 106.325 21.5788C106.325 18.4926 107.341 15.9064 109.375 13.8204C111.436 11.7058 113.977 10.6484 116.999 10.6484C119.427 10.6484 121.559 11.3771 123.395 12.8345C125.258 14.2919 126.36 16.1065 126.698 18.2783H122.717C122.406 17.1638 121.714 16.2494 120.641 15.535C119.568 14.792 118.354 14.4205 116.999 14.4205C115.05 14.4205 113.413 15.1063 112.085 16.478C110.786 17.8496 110.137 19.5499 110.137 21.5788C110.137 23.5791 110.786 25.2651 112.085 26.6368C113.413 27.9799 115.05 28.6514 116.999 28.6514C118.382 28.6514 119.611 28.2799 120.684 27.5369C121.785 26.7654 122.477 25.7938 122.759 24.6222H126.698C126.416 26.8797 125.343 28.7514 123.479 30.2374C121.616 31.6947 119.455 32.4234 116.999 32.4234Z"/><path fill="currentColor" d="M137.399 10.6484C140.138 10.6484 142.27 11.4057 143.795 12.9202C145.32 14.4348 146.082 16.4494 146.082 18.9641V31.9948H142.355V28.9943C141.677 30.0802 140.731 30.9232 139.517 31.5233C138.331 32.1234 137.032 32.4234 135.62 32.4234C133.615 32.4234 131.978 31.8519 130.707 30.7089C129.436 29.5658 128.801 28.1227 128.801 26.3796C128.801 24.1507 129.705 22.4218 131.512 21.193C133.347 19.9357 135.875 19.307 139.094 19.307H142.355V18.7498C142.355 17.2638 141.903 16.0922 141 15.2349C140.096 14.349 138.896 13.9061 137.399 13.9061C136.1 13.9061 134.985 14.2919 134.053 15.0634C133.121 15.835 132.613 16.8066 132.528 17.9782H129.055C129.196 15.9207 130.072 14.1919 131.681 12.7916C133.291 11.3628 135.197 10.6484 137.399 10.6484ZM136.34 29.08C137.555 29.08 138.698 28.78 139.771 28.1799C140.844 27.5798 141.706 26.7368 142.355 25.6509V22.3075H138.967C134.59 22.3075 132.401 23.522 132.401 25.9509C132.401 26.894 132.754 27.6512 133.46 28.2227C134.194 28.7943 135.154 29.08 136.34 29.08Z"/></svg>
+    <p style="margin-top:0">part of Websolute &nbsp;·&nbsp; Analisi e-commerce per Label Rose &nbsp;·&nbsp; Agosto 2026</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var DD = {
+    "05":{note:{t:"Cosa salta all'occhio a Maggio",p:"Le sessioni Italia <b>crescono del +25%</b> ma il conversion rate <b>cala del -27%</b>: portiamo più traffico che converte molto peggio. In parallelo l'AOV crolla del -21% e l'engagement rate scende dal 59% al 32%. È il segnale più netto di un problema di <b>qualità del traffico</b>, non di volume."},
+      rows:[
+        ["Ordini","3.925","4.867","4.420","-9,2%","down"],
+        ["Fatturato","€316,8k","€387,6k","€278,5k","-28,1%","down"],
+        ["Spesa ADV","€20,2k","€58,4k","€47,6k","-18,6%","down"],
+        ["MER","15,7","6,6","5,9","-11,7%","down"],
+        ["aCOS","6,4%","15,1%","17,1%","+13,3%","down"],
+        ["AOV","€80,7","€79,6","€63,0","-20,9%","down"],
+        ["Sconto medio","23,1%","42,4%","31,6%","—","flat"],
+        ["Resi","1,7%","1,5%","1,6%","+6,7%","down"],
+        ["Sessioni IT","202k","614k","767k","+25,0%","up"],
+        ["Conversion rate","1,94%","0,79%","0,58%","-27,4%","down"],
+        ["Clienti nuovi (tracker)","1.780","1.576","1.472","-6,6%","down"],
+        ["Clienti ritorno (tracker)","1.625","2.390","2.231","-6,7%","down"],
+        ["Clienti totali (tracker)","3.405","3.966","3.703","-6,6%","down"]
+      ]},
+    "06":{note:{t:"Cosa salta all'occhio a Giugno",p:"Il mese peggiore: ordini <b>-29%</b> e fatturato <b>-29%</b>. Qui si sommano <b>più sconto</b> (dal 17% al 30%, +72%), <b>più resi</b> (dal 1,5% al 3,7%) e un <b>crollo dei clienti</b> (totali -31%, nuovi -45%, ricorrenti -21%). La conversione resta debole (-28%) su sessioni stabili."},
+      rows:[
+        ["Ordini","5.268","4.925","3.497","-29,0%","down"],
+        ["Fatturato","€397,6k","€306,5k","€217,4k","-29,1%","down"],
+        ["Spesa ADV","€25,7k","€49,8k","€37,4k","-25,0%","down"],
+        ["MER","15,5","6,2","5,8","-5,4%","down"],
+        ["aCOS","6,5%","16,2%","17,2%","+5,8%","down"],
+        ["AOV","€75,5","€62,2","€62,2","-0,1%","flat"],
+        ["Sconto medio","16,6%","17,4%","30,0%","+72,1%","down"],
+        ["Resi","1,5%","1,5%","3,7%","+143%","down"],
+        ["Sessioni IT","464k","521k","512k","-1,6%","flat"],
+        ["Conversion rate","1,14%","0,95%","0,68%","-27,8%","down"],
+        ["Clienti nuovi (tracker)","1.856","1.701","932","-45,2%","down"],
+        ["Clienti ritorno (tracker)","2.296","2.380","1.873","-21,3%","down"],
+        ["Clienti totali (tracker)","4.152","4.081","2.805","-31,3%","down"]
+      ]},
+    "07":{note:{t:"Cosa salta all'occhio a Luglio",p:"Segnale diverso: le sessioni <b>calano del -32%</b> (meno traffico), ma il CR <b>migliora del +11%</b> e l'AOV torna positivo. Con meno spesa (-28%) il MER sale a 7,8: quando il traffico è più pulito, la conversione regge. Resta però il nodo <b>clienti</b>: totali -25%, nuovi -31%, ricorrenti -21% — acquisizione e retention sono il problema di fondo."},
+      rows:[
+        ["Ordini","6.652","5.176","3.910","-24,5%","down"],
+        ["Fatturato","€486,2k","€367,9k","€282,9k","-23,1%","down"],
+        ["Spesa ADV","€41,7k","€50,2k","€36,1k","-28,0%","down"],
+        ["MER","11,7","7,3","7,8","+6,7%","up"],
+        ["aCOS","8,6%","13,6%","12,8%","-6,3%","up"],
+        ["AOV","€73,1","€71,1","€72,3","+1,8%","up"],
+        ["Sconto medio","20,5%","43,3%","32,1%","—","flat"],
+        ["Resi","2,7%","0,4%","1,8%","+386%","down"],
+        ["Sessioni IT","646k","674k","457k","-32,2%","down"],
+        ["Conversion rate","1,03%","0,77%","0,86%","+11,4%","up"],
+        ["Clienti nuovi (tracker)","3.069","1.685","1.168","-30,7%","down"],
+        ["Clienti ritorno (tracker)","2.635","2.561","2.026","-20,9%","down"],
+        ["Clienti totali (tracker)","5.704","4.246","3.194","-24,8%","down"]
+      ]}
+  };
+  window.showMonth=function(m,btn){
+    var b=document.getElementById('ddbody'); b.innerHTML='';
+    DD[m].rows.forEach(function(r){
+      var cls=r[5]==='up'?'up':(r[5]==='down'?'down':'flat');
+      var arrow=r[5]==='up'?'▲':(r[5]==='down'?'▼':'–');
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td class="d '+cls+'">'+(r[4]==='—'?'—':arrow+' '+r[4])+'</td>';
+      b.appendChild(tr);
+    });
+    document.getElementById('ddnote').querySelector('h4').textContent=DD[m].note.t;
+    document.getElementById('ddnotep').innerHTML=DD[m].note.p;
+    var tb=document.querySelectorAll('.tabs button'); tb.forEach(function(x){x.classList.remove('active');});
+    if(btn)btn.classList.add('active');
+  };
+  showMonth('05',null);
+})();
+</script>
+
+</body>
+</html>
